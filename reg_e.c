@@ -13,7 +13,7 @@ static inline double upper_half(double x) {
 	return p + (x - p);
 }
 
-static inline double mul_residue(double a, double b, double c) {
+static inline double emulated_fma(double a, double b, double c) {
 	double aup = upper_half(a);
 	double alo = a - aup;
 	double bup = upper_half(b);
@@ -27,6 +27,10 @@ static inline double mul_residue(double a, double b, double c) {
 
 	double fma = ab + c;
 	return resab + fma;
+}
+
+static inline double mul_residue(double a, double b, double c) {
+	return emulated_fma(a, b, -c);
 }
 
 static inline double mul_residue_fma(double a, double b, double c) {
@@ -45,9 +49,9 @@ double fmul_1(double a, double b) {
 		return nextafter_1(c);
 	}
 	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
+	double a_scaled = frexp(a, &expa);
+	double b_scaled = frexp(b, &expb);
+	double c_scaled = ldexp(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
@@ -63,9 +67,9 @@ double fmul_2(double a, double b) {
 		return nextafter_2(c);
 	}
 	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
+	double a_scaled = frexp(a, &expa);
+	double b_scaled = frexp(b, &expb);
+	double c_scaled = ldexp(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res > 0.0) {
@@ -81,9 +85,9 @@ double fmul_3(double a, double b) {
 		return nextafter_3(c);
 	}
 	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
+	double a_scaled = frexp(a, &expa);
+	double b_scaled = frexp(b, &expb);
+	double c_scaled = ldexp(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
@@ -96,11 +100,7 @@ double fmul_3(double a, double b) {
 // toward negative infinity
 double fmul_fma_1(double a, double b) {
 	double c = a * b;
-	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
-	double res = mul_residue_fma(a_scaled, b_scaled, c_scaled);
+	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
 		return nextafter_1(c);
@@ -111,11 +111,7 @@ double fmul_fma_1(double a, double b) {
 
 double fmul_fma_2(double a, double b) {
 	double c = a * b;
-	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
-	double res = mul_residue_fma(a_scaled, b_scaled, c_scaled);
+	double res = mul_residue_fma(a, b, c);
 
 	if (res > 0.0) {
 		return nextafter_2(c);
@@ -126,11 +122,7 @@ double fmul_fma_2(double a, double b) {
 
 double fmul_fma_3(double a, double b) {
 	double c = a * b;
-	int expa, expb;
-	double a_scaled = a;//frexp(a, &expa);
-	double b_scaled = b;//frexp(b, &expb);
-	double c_scaled = c;//ldexp(c, -expa - expb);
-	double res = mul_residue_fma(a_scaled, b_scaled, c_scaled);
+	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
 		return nextafter_3(c);

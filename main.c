@@ -42,28 +42,29 @@ uint64_t pcg64_random_r(pcg32_random_t *rng) {
 	return low32 | (high32 << 32);
 }
 
-// END PCG32
-
-// http://marc-b-reynolds.github.io/math/2020/06/16/UniformFloat.html
-// (0, 1]
-double pcgd_random(pcg32_random_t *rng) {
-	double uni = (double)(pcg64_random_r(rng) >> (64 - 53));
-	return fma(uni, 0x1p-53, 0x1p-53);
+double pcgd_random_r(pcg32_random_t *rng) {
+	union {
+		uint64_t u;
+		double d;
+	} u;
+	u.u = pcg64_random_r(rng);
+	return u.d;
 }
 
-double pcgd_uniform(double a, double b, pcg32_random_t *state) {
-	double st = pcgd_random(state);
+// END PCG32
 
-	if (st == 1.0) {
-		return b;
-	}
+bool pcgd_truth(double lo, double hi, double v) {
+	return !(isnan(v) || v < lo || v > hi || fpclassify(v) == FP_SUBNORMAL);
+}
 
-	if (isinf(b)) {
-		// set to largest finite number
-		b = 0x1.fffffffffffffp1023;
-	}
+double pcgd_random_some(double lo, double hi, pcg32_random_t *rng) {
+	double v;
+	
+	do {
+		v = pcgd_random_r(rng);
+	} while(!pcgd_truth(lo, hi, v));
 
-	return a + (b - a) * st;
+	return v;
 }
 
 typedef struct running_avg_t running_avg_t;
@@ -112,15 +113,17 @@ void bench(driver_t *driver, unsigned samples) {
 	for (unsigned i = 0; i < samples; i++) {
 		double a, b, c, d;
 
-		a = pcgd_uniform(driver->lo, driver->hi, &state);
-		b = pcgd_uniform(driver->lo, driver->hi, &state);
+	retry:
+		a = pcgd_random_some(driver->lo, driver->hi, &state);
+		b = pcgd_random_some(driver->lo, driver->hi, &state);
 
 		for (int v = 1; v < 4; v++) {
 			fesetround(fprc_env[v]);
 			TIMEIT(0, { c = driver->fprc[0](a, b); });
 
-			assert(!(isnan(a) || fpclassify(a) == FP_SUBNORMAL || isnan(b) || fpclassify(b) == FP_SUBNORMAL || isnan(c) || fpclassify(c) == FP_SUBNORMAL
-				|| a <= driver->lo || a >= driver->hi || b <= driver->lo || b >= driver->hi));
+			if (!pcgd_truth(driver->lo, driver->hi, c)) {
+				goto retry;
+			}
 
 			fesetround(FE_TONEAREST);
 			TIMEIT(v, { d = driver->fprc[v](a, b); });
@@ -128,7 +131,7 @@ void bench(driver_t *driver, unsigned samples) {
 			if (!(isnan(c) || isnan(d)) && c == d) {
 				complete[v]++;
 			} else {
-				// printf("FAIL: [%s] truth(%a, %a) == %a != op(...) == %a\n", driver->desc, a, b, c, d);
+				//printf("FAIL: [%s fprc(%d)] truth(%a, %a) == %a != op(...) == %a\n", driver->desc, v, a, b, c, d);
 			}
 		}
 	}
