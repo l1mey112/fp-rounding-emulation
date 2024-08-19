@@ -1,5 +1,5 @@
 #pragma once
 
-double nextafter_1_noinf(double x);
-double nextafter_2_noinf(double x);
-double nextafter_3_noinf(double x);
+double nextafter_1(double x);
+double nextafter_2(double x);
+double nextafter_3(double x);

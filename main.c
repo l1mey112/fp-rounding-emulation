@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "reg_f.h"
+#include "reg.h"
 
 typedef struct driver_t driver_t;
 
@@ -101,7 +101,9 @@ void bench(driver_t *driver, unsigned samples) {
 	do {                                                                            \
 		struct timespec start, end;                                                 \
 		clock_gettime(CLOCK_MONOTONIC_RAW, &start);                                 \
+		asm volatile("" ::: "memory");                                              \
 		f;                                                                          \
+		asm volatile("" ::: "memory");                                              \
 		clock_gettime(CLOCK_MONOTONIC_RAW, &end);                                   \
 		running_avg_update(&running_avg[v], (double)(end.tv_nsec - start.tv_nsec)); \
 	} while (0)
@@ -142,12 +144,14 @@ void bench(driver_t *driver, unsigned samples) {
 }
 
 static driver_t driver[] = {
-	{ "fadd", -3.0e+14, 3.0e+14, fadd_0, fadd_1, fadd_2, fadd_3 },
-	{ "fsub", -3.0e+14, 3.0e+14, fsub_0, fsub_1, fsub_2, fsub_3 },
+	{"fadd", -3.0e+14, 3.0e+14, fadd_0, fadd_1, fadd_2, fadd_3},
+	{"fsub", -3.0e+14, 3.0e+14, fsub_0, fsub_1, fsub_2, fsub_3},
+	{"fmul", 1.7e-77, INFINITY, fmul_0, fmul_1, fmul_2, fmul_3},
+	{"fmul (fma)", 1.7e-77, INFINITY, fmul_0, fmul_fma_1, fmul_fma_2, fmul_fma_3},
 };
 
 int main() {
 	for (int i = 0; i < sizeof(driver) / sizeof(driver[0]); i++) {
-		bench(&driver[i], 100000);
+		bench(&driver[i], 1000000);
 	}
 }

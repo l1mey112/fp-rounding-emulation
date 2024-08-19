@@ -2,6 +2,8 @@
 
 // The domains of floating point operations are separated into "additive" operations,
 // which use register group F and "multiplicative" operations, which use register group E.
+//
+// [-3.0e+14, 3.0e+14]
 
 static inline double sum_residue(double a, double b, double c) {
 	double delta_a = a - (c - b);
@@ -21,7 +23,7 @@ double fadd_1(double a, double b) {
 	double res = sum_residue(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_1_noinf(c);
+		return nextafter_1(c);
 	}
 
 	return c;
@@ -33,7 +35,7 @@ double fadd_2(double a, double b) {
 	double res = sum_residue(a, b, c);
 	
 	if (res > 0.0) {
-		return nextafter_2_noinf(c);
+		return nextafter_2(c);
 	}
 
 	return c;
@@ -45,7 +47,7 @@ double fadd_3(double a, double b) {
 	double res = sum_residue(a, b, c);
 
 	if ((res > 0.0 && c < 0.0) || (res < 0.0 && c > 0.0)) {
-		return nextafter_3_noinf(c);
+		return nextafter_3(c);
 	}
 
 	return c;
