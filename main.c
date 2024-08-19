@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <fenv.h>
 #include <math.h>
 #include <stdbool.h>
@@ -109,10 +110,7 @@ void bench(driver_t *driver, unsigned samples) {
 	} while (0)
 
 	for (unsigned i = 0; i < samples; i++) {
-		double a;
-		double b;
-		double c;
-		double d;
+		double a, b, c, d;
 
 		a = pcgd_uniform(driver->lo, driver->hi, &state);
 		b = pcgd_uniform(driver->lo, driver->hi, &state);
@@ -120,6 +118,10 @@ void bench(driver_t *driver, unsigned samples) {
 		for (int v = 1; v < 4; v++) {
 			fesetround(fprc_env[v]);
 			TIMEIT(0, { c = driver->fprc[0](a, b); });
+
+			assert(!(isnan(a) || fpclassify(a) == FP_SUBNORMAL || isnan(b) || fpclassify(b) == FP_SUBNORMAL || isnan(c) || fpclassify(c) == FP_SUBNORMAL
+				|| a <= driver->lo || a >= driver->hi || b <= driver->lo || b >= driver->hi));
+
 			fesetround(FE_TONEAREST);
 			TIMEIT(v, { d = driver->fprc[v](a, b); });
 
