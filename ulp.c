@@ -21,9 +21,6 @@ double nextafter_1_reg_f(double x) {
 
 	// y = -inf
 
-	if (x == -INFINITY)
-		return x; /* x=y, return x */
-
 	if ((ix | lx) == 0) { /* x == 0 */
 		// __HI(y) & 0x80000000 /* extract sign, rest zero */
 		__HI(x) = 0x80000000; /* return +-minsubnormal */
@@ -58,9 +55,6 @@ double nextafter_2_reg_f(double x) {
 	ix = hx & 0x7fffffff; /* |x| */
 
 	// y = inf
-
-	if (x == INFINITY)
-		return x; /* x=y, return x */
 
 	if ((ix | lx) == 0) { /* x == 0 */
 		// __HI(y) & 0x80000000 /* extract sign, rest zero */
@@ -97,14 +91,8 @@ double nextafter_3_reg_f(double x) {
 
 	// y = 0
 
-	if (x == 0.0)
-		return x; /* x=y, return x */
-
 	if ((ix | lx) == 0) { /* x == 0 */
-		// __HI(y) & 0x80000000 /* extract sign, rest zero */
-		__HI(x) = 0x00000000; /* return +-minsubnormal */
-		__LO(x) = 1;
-		return x;
+		return x; /* x=y, return x */
 	}
 
 	if (hx >= 0) { /* x > 0 */
