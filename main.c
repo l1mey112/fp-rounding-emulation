@@ -59,10 +59,10 @@ bool pcgd_truth(double lo, double hi, double v) {
 
 double pcgd_random_some(double lo, double hi, pcg32_random_t *rng) {
 	double v;
-	
+
 	do {
 		v = pcgd_random_r(rng);
-	} while(!pcgd_truth(lo, hi, v));
+	} while (!pcgd_truth(lo, hi, v));
 
 	return v;
 }
@@ -84,6 +84,30 @@ static void running_avg_update(running_avg_t *avg, double value) {
 	avg->avg = a * value + b * avg->avg;
 }
 
+// https://www.ccsl.carleton.ca/%7Ejamuir/rdtscpm1.pdf
+// https://en.wikipedia.org/wiki/Time_Stamp_Counter
+// https://github.com/xuwd1/rdtsc-notes
+
+static volatile inline uint64_t rdtsc() {
+	uint32_t lo, hi;
+	asm volatile(
+		"xorl %%eax, %%eax\n\t"
+		"cpuid\n\t"
+		"rdtsc\n\t"
+		"lfence\n\t"
+		: "=a"(lo), "=d"(hi)
+		:
+		: "%ebx", "%ecx");
+	return (uint64_t)hi << 32 | lo;
+}
+
+static volatile uint32_t rdtsc_overhead() {
+	uint64_t start, end;
+	start = rdtsc();
+	end = rdtsc();
+	return end - start;
+}
+
 void bench(driver_t *driver, unsigned samples) {
 	pcg32_random_t state = {
 		// .state = time(NULL),
@@ -99,15 +123,14 @@ void bench(driver_t *driver, unsigned samples) {
 	running_avg_t running_avg[4] = {};
 	unsigned complete[4] = {};
 
-#define TIMEIT(v, f)                                                                \
-	do {                                                                            \
-		struct timespec start, end;                                                 \
-		clock_gettime(CLOCK_MONOTONIC_RAW, &start);                                 \
-		asm volatile("" ::: "memory");                                              \
-		f;                                                                          \
-		asm volatile("" ::: "memory");                                              \
-		clock_gettime(CLOCK_MONOTONIC_RAW, &end);                                   \
-		running_avg_update(&running_avg[v], (double)(end.tv_nsec - start.tv_nsec)); \
+#define TIMEIT(v, f)                                                    \
+	do {                                                                \
+		uint32_t rdtsc_base = rdtsc_overhead();                         \
+		uint32_t start = rdtsc();                                       \
+		f;                                                              \
+		uint32_t end = rdtsc();                                         \
+		int32_t ncycles = (int32_t)(end - start) - rdtsc_base;          \
+		running_avg_update(&running_avg[v], ncycles < 0 ? 0 : ncycles); \
 	} while (0)
 
 	// boundary conditions
@@ -151,7 +174,7 @@ void bench(driver_t *driver, unsigned samples) {
 			if (!(isnan(c) || isnan(d)) && c == d) {
 				complete[v]++;
 			} else {
-				//printf("FAIL: [%s fprc(%d)] truth(%a, %a) == %a != op(...) == %a\n", driver->desc, v, a, b, c, d);
+				// printf("FAIL: [%s fprc(%d)] truth(%a, %a) == %a != op(...) == %a\n", driver->desc, v, a, b, c, d);
 			}
 		}
 	}
@@ -161,9 +184,9 @@ void bench(driver_t *driver, unsigned samples) {
 	printf("%s:\n", driver->desc);
 	for (int v = 0; v < 4; v++) {
 		if (v == 0) {
-			printf("  fprc(%d): %uns\n", v, (unsigned)running_avg[v].avg);
+			printf("  fprc(%d): %uclks\n", v, (unsigned)running_avg[v].avg);
 		} else {
-			printf("  fprc(%d): %uns [%d/%d]\n", v, (unsigned)running_avg[v].avg, complete[v], samples);
+			printf("  fprc(%d): %uclks [%d/%d]\n", v, (unsigned)running_avg[v].avg, complete[v], samples);
 		}
 	}
 }
@@ -177,6 +200,6 @@ static driver_t driver[] = {
 
 int main() {
 	for (int i = 0; i < sizeof(driver) / sizeof(driver[0]); i++) {
-		bench(&driver[i], 1000000);
+		bench(&driver[i], 10000);
 	}
 }
