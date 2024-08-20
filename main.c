@@ -188,7 +188,7 @@ void bench(driver_t *driver, unsigned samples) {
 		if (v == 0) {
 			printf("  fprc(%d): %uclks\n", v, (unsigned)running_avg[v].avg);
 		} else {
-			printf("  fprc(%d): %uclks [%d/%d]\n", v, (unsigned)running_avg[v].avg, complete[v], samples);
+			printf("  fprc(%d): %uclks [%d/%d] x%u overhead\n", v, (unsigned)running_avg[v].avg, complete[v], samples, (unsigned)round(running_avg[v].avg / running_avg[0].avg));
 		}
 	}
 }
