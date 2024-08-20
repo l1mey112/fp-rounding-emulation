@@ -1,7 +1,6 @@
 #include "ulp.h"
 
 #include <math.h>
-#include <stdio.h>
 
 // The domains of floating point operations are separated into "additive" operations,
 // which use register group F and "multiplicative" operations, which use register group E.
