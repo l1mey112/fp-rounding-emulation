@@ -1,6 +1,7 @@
 #include "ulp.h"
 
 #include <math.h>
+#include <stdio.h>
 
 // The domains of floating point operations are separated into "additive" operations,
 // which use register group F and "multiplicative" operations, which use register group E.
@@ -45,8 +46,13 @@ double fmul_0(double a, double b) {
 // toward negative infinity
 double fmul_1(double a, double b) {
 	double c = a * b;
-	if (!isfinite(c) && isfinite(a) && isfinite(b) && b != 0.0) {
-		return nextafter_1(c);
+	if (!isfinite(c)) {
+		// fin * fin = _inf_; round down to the nearest representable number
+		if (isfinite(a) && isfinite(b)) {
+			return nextafter_1_nozero(c);
+		}
+		// inf * inf = inf
+		return c;
 	}
 	int expa, expb;
 	double a_scaled = frexp(a, &expa);
@@ -55,16 +61,19 @@ double fmul_1(double a, double b) {
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
-		return nextafter_1(c);
+		return nextafter_1_nozero(c);
 	}
 
 	return c;
 }
 
+// toward positive infinity
 double fmul_2(double a, double b) {
 	double c = a * b;
-	if (!isfinite(c) && isfinite(a) && isfinite(b) && b != 0.0) {
-		return nextafter_2(c);
+	if (!isfinite(c)) {
+		// fin * fin = inf
+		// inf * inf = inf
+		return c;
 	}
 	int expa, expb;
 	double a_scaled = frexp(a, &expa);
@@ -73,16 +82,22 @@ double fmul_2(double a, double b) {
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res > 0.0) {
-		return nextafter_2(c);
+		return nextafter_2_nozero(c);
 	}
 
 	return c;
 }
 
+// toward zero
 double fmul_3(double a, double b) {
 	double c = a * b;
-	if (!isfinite(c) && isfinite(a) && isfinite(b) && b != 0.0) {
-		return nextafter_3(c);
+	if (!isfinite(c)) {
+		// fin * fin = _inf_; round down to the nearest representable number
+		if (isfinite(a) && isfinite(b)) {
+			return nextafter_3_nozero(c);
+		}
+		// inf * inf = inf
+		return c;
 	}
 	int expa, expb;
 	double a_scaled = frexp(a, &expa);
@@ -91,7 +106,7 @@ double fmul_3(double a, double b) {
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
-		return nextafter_3(c);
+		return nextafter_3_nozero(c);
 	}
 
 	return c;
@@ -103,7 +118,7 @@ double fmul_fma_1(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_1(c);
+		return nextafter_1_nozero(c);
 	}
 
 	return c;
@@ -114,7 +129,7 @@ double fmul_fma_2(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res > 0.0) {
-		return nextafter_2(c);
+		return nextafter_2_nozero(c);
 	}
 
 	return c;
@@ -125,7 +140,7 @@ double fmul_fma_3(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_3(c);
+		return nextafter_3_nozero(c);
 	}
 
 	return c;

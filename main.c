@@ -110,12 +110,32 @@ void bench(driver_t *driver, unsigned samples) {
 		running_avg_update(&running_avg[v], (double)(end.tv_nsec - start.tv_nsec)); \
 	} while (0)
 
+	// boundary conditions
+	long bound_idx = 0;
+	double bound[6] = {
+		0.0,
+		-0.0,
+		1.0,
+		-1.0,
+		INFINITY,
+		-INFINITY,
+	};
+
 	for (unsigned i = 0; i < samples; i++) {
 		double a, b, c, d;
 
 	retry:
 		a = pcgd_random_some(driver->lo, driver->hi, &state);
 		b = pcgd_random_some(driver->lo, driver->hi, &state);
+		if (bound_idx < 6 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx])) {
+			a = bound[bound_idx];
+		} else if (bound_idx < 12 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - 6])) {
+			b = bound[bound_idx - 6];
+		} else if (bound_idx < 18 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - 12])) {
+			a = bound[bound_idx - 12];
+			b = bound[bound_idx - 12];
+		}
+		bound_idx++;
 
 		for (int v = 1; v < 4; v++) {
 			fesetround(fprc_env[v]);
