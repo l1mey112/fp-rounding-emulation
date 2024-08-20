@@ -23,7 +23,7 @@ double fadd_1(double a, double b) {
 	double res = sum_residue(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_1(c);
+		return nextafter_1_reg_f(c);
 	}
 
 	return c;
@@ -35,7 +35,7 @@ double fadd_2(double a, double b) {
 	double res = sum_residue(a, b, c);
 	
 	if (res > 0.0) {
-		return nextafter_2(c);
+		return nextafter_2_reg_f(c);
 	}
 
 	return c;
@@ -47,7 +47,7 @@ double fadd_3(double a, double b) {
 	double res = sum_residue(a, b, c);
 
 	if ((res > 0.0 && c < 0.0) || (res < 0.0 && c > 0.0)) {
-		return nextafter_3(c);
+		return nextafter_3_reg_f(c);
 	}
 
 	return c;

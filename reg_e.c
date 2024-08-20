@@ -49,19 +49,19 @@ double fmul_1(double a, double b) {
 	if (!isfinite(c)) {
 		// fin * fin = _inf_; round down to the nearest representable number
 		if (isfinite(a) && isfinite(b)) {
-			return nextafter_1_nozero(c);
+			return nextafter_1_reg_e(c);
 		}
 		// inf * inf = inf
 		return c;
 	}
 	int expa, expb;
-	double a_scaled = frexp(a, &expa);
-	double b_scaled = frexp(b, &expb);
-	double c_scaled = ldexp(c, -expa - expb);
+	double a_scaled = frexp_reg_e_nozero_noinf(a, &expa);
+	double b_scaled = frexp_reg_e_nozero_noinf(b, &expb);
+	double c_scaled = ldexp_reg_e_nozero_noinf(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
-		return nextafter_1_nozero(c);
+		return nextafter_1_reg_e(c);
 	}
 
 	return c;
@@ -76,13 +76,13 @@ double fmul_2(double a, double b) {
 		return c;
 	}
 	int expa, expb;
-	double a_scaled = frexp(a, &expa);
-	double b_scaled = frexp(b, &expb);
-	double c_scaled = ldexp(c, -expa - expb);
+	double a_scaled = frexp_reg_e_nozero_noinf(a, &expa);
+	double b_scaled = frexp_reg_e_nozero_noinf(b, &expb);
+	double c_scaled = ldexp_reg_e_nozero_noinf(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res > 0.0) {
-		return nextafter_2_nozero(c);
+		return nextafter_2_reg_e(c);
 	}
 
 	return c;
@@ -94,19 +94,19 @@ double fmul_3(double a, double b) {
 	if (!isfinite(c)) {
 		// fin * fin = _inf_; round down to the nearest representable number
 		if (isfinite(a) && isfinite(b)) {
-			return nextafter_3_nozero(c);
+			return nextafter_3_reg_e(c);
 		}
 		// inf * inf = inf
 		return c;
 	}
 	int expa, expb;
-	double a_scaled = frexp(a, &expa);
-	double b_scaled = frexp(b, &expb);
-	double c_scaled = ldexp(c, -expa - expb);
+	double a_scaled = frexp_reg_e_nozero_noinf(a, &expa);
+	double b_scaled = frexp_reg_e_nozero_noinf(b, &expb);
+	double c_scaled = ldexp_reg_e_nozero_noinf(c, -expa - expb);
 	double res = mul_residue(a_scaled, b_scaled, c_scaled);
 
 	if (res < 0.0) {
-		return nextafter_3_nozero(c);
+		return nextafter_3_reg_e(c);
 	}
 
 	return c;
@@ -118,7 +118,7 @@ double fmul_fma_1(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_1_nozero(c);
+		return nextafter_1_reg_e(c);
 	}
 
 	return c;
@@ -129,7 +129,7 @@ double fmul_fma_2(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res > 0.0) {
-		return nextafter_2_nozero(c);
+		return nextafter_2_reg_e(c);
 	}
 
 	return c;
@@ -140,7 +140,7 @@ double fmul_fma_3(double a, double b) {
 	double res = mul_residue_fma(a, b, c);
 
 	if (res < 0.0) {
-		return nextafter_3_nozero(c);
+		return nextafter_3_reg_e(c);
 	}
 
 	return c;
