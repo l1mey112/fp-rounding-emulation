@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 
 #include "ulp.h"
@@ -235,6 +236,20 @@ double frexp_reg_e_nozero_noinf(double x, int *eptr) {
 	ix = 0x7fffffff & hx;
 	lx = __LO(x);
 	*eptr = 0;
+	*eptr += (ix >> 20) - 1022;
+	hx = (hx & 0x800fffff) | 0x3fe00000;
+	__HI(x) = hx;
+	return x;
+}
+
+// assume no NaN, subnormal, or zero
+double frexp_reg_e_nozero(double x, int *eptr) {
+	int hx, ix, lx;
+	hx = __HI(x);
+	ix = 0x7fffffff & hx;
+	lx = __LO(x);
+	*eptr = 0;
+	if(ix>=0x7ff00000) return x; /* inf,nan */
 	*eptr += (ix >> 20) - 1022;
 	hx = (hx & 0x800fffff) | 0x3fe00000;
 	__HI(x) = hx;

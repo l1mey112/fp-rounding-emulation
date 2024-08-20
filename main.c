@@ -135,7 +135,7 @@ void bench(driver_t *driver, unsigned samples) {
 
 	// boundary conditions
 	long bound_idx = 0;
-	double bound[6] = {
+	double bound[] = {
 		0.0,
 		-0.0,
 		1.0,
@@ -144,19 +144,21 @@ void bench(driver_t *driver, unsigned samples) {
 		-INFINITY,
 	};
 
+	long bound_size = sizeof(bound) / sizeof(bound[0]);
+
 	for (unsigned i = 0; i < samples; i++) {
 		double a, b, c, d;
 
 	retry:
 		a = pcgd_random_some(driver->lo, driver->hi, &state);
 		b = pcgd_random_some(driver->lo, driver->hi, &state);
-		if (bound_idx < 6 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx])) {
+		if (bound_idx < bound_size && pcgd_truth(driver->lo, driver->hi, bound[bound_idx])) {
 			a = bound[bound_idx];
-		} else if (bound_idx < 12 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - 6])) {
-			b = bound[bound_idx - 6];
-		} else if (bound_idx < 18 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - 12])) {
-			a = bound[bound_idx - 12];
-			b = bound[bound_idx - 12];
+		} else if (bound_idx < bound_size * 2 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - bound_size])) {
+			b = bound[bound_idx - bound_size];
+		} else if (bound_idx < bound_size * 3 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - bound_size * 2])) {
+			a = bound[bound_idx - bound_size * 2];
+			b = bound[bound_idx - bound_size * 2];
 		}
 		bound_idx++;
 
@@ -196,10 +198,14 @@ static driver_t driver[] = {
 	{"fsub", -3.0e+14, 3.0e+14, fsub_0, fsub_1, fsub_2, fsub_3},
 	{"fmul", 1.7e-77, INFINITY, fmul_0, fmul_1, fmul_2, fmul_3},
 	{"fmul (fma)", 1.7e-77, INFINITY, fmul_0, fmul_fma_1, fmul_fma_2, fmul_fma_3},
+	{"fdiv", 1.7e-77, INFINITY, fdiv_0, fdiv_1, fdiv_2, fdiv_3},
+	{"fdiv (fma)", 1.7e-77, INFINITY, fdiv_0, fdiv_fma_1, fdiv_fma_2, fdiv_fma_3},
+	{"fsqrt", 1.7e-77, INFINITY, fsqrt_0, fsqrt_1, fsqrt_2, fsqrt_3},
+	{"fsqrt (fma)", 1.7e-77, INFINITY, fsqrt_0, fsqrt_fma_1, fsqrt_fma_2, fsqrt_fma_3},
 };
 
 int main() {
 	for (int i = 0; i < sizeof(driver) / sizeof(driver[0]); i++) {
-		bench(&driver[i], 10000);
+		bench(&driver[i], 100000);
 	}
 }
