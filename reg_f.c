@@ -49,7 +49,7 @@ v128_t fadd_1_ssse(v128_t a, v128_t b) {
 
 	v128_t k = wasm_i64x2_add(c, wasm_v128_or(wasm_f64x2_gt(c, wasm_f64x2_const(0.0, 0.0)), wasm_i64x2_const(1, 1)));
 
-	k = wasm_v128_bitselect(wasm_i32x4_const(0x80000000, 1, 0x80000000, 1), k, is_zero); // is_zero ? +minsubnormal : k
+	k = wasm_v128_bitselect(wasm_i32x4_const(0x80000000, 1, 0x80000000, 1), k, is_zero); // is_zero ? +-minsubnormal : k
 
 	// to_round ? k : c
 	v128_t d = wasm_v128_bitselect(k, c, to_round);
@@ -79,7 +79,7 @@ double fadd_1(double a, double b) {
     return c;
 } */
 
-v128_t fadd_2_ssse(v128_t a, v128_t b) {
+/* v128_t fadd_2_ssse(v128_t a, v128_t b) {
 	double a_0 = wasm_f64x2_extract_lane(a, 0);
 	double a_1 = wasm_f64x2_extract_lane(a, 1);
 	double b_0 = wasm_f64x2_extract_lane(b, 0);
@@ -100,6 +100,25 @@ v128_t fadd_2_ssse(v128_t a, v128_t b) {
 	}
 
 	return wasm_f64x2_make(c_0, c_1);
+} */
+
+v128_t fadd_2_ssse(v128_t a, v128_t b) {
+	v128_t c = wasm_f64x2_add(a, b);
+	v128_t res = sum_residue_ssse(a, b, c);
+
+	// round toward positive infinity
+	v128_t to_round = wasm_f64x2_gt(res, wasm_f64x2_const(0.0, 0.0));
+	
+	v128_t is_zero = wasm_f64x2_eq(c, wasm_f64x2_const(0.0, 0.0));
+
+	v128_t k = wasm_i64x2_add(c, wasm_v128_or(wasm_f64x2_lt(c, wasm_f64x2_const(0.0, 0.0)), wasm_i64x2_const(1, 1)));
+
+	k = wasm_v128_bitselect(wasm_i32x4_const(0x00000000, 1, 0x00000000, 1), k, is_zero); // is_zero ? +-minsubnormal : k
+
+	// to_round ? k : c
+	v128_t d = wasm_v128_bitselect(k, c, to_round);
+
+	return d;
 }
 
 double fadd_2(double a, double b) {
@@ -122,8 +141,39 @@ double fadd_2(double a, double b) {
 	return c;
 } */
 
-// toward zero
+v128_t fadd_3_ssse(v128_t a, v128_t b) {
+	v128_t c = wasm_f64x2_add(a, b);
+	v128_t res = sum_residue_ssse(a, b, c);
+
+	// round toward zero
+	// if (res > 0.0 && c < 0.0) || (res < 0.0 && c > 0.0)
+	v128_t to_round = wasm_v128_or(
+		wasm_v128_and(wasm_f64x2_gt(res, wasm_f64x2_const(0.0, 0.0)), wasm_f64x2_lt(c, wasm_f64x2_const(0.0, 0.0))),
+		wasm_v128_and(wasm_f64x2_lt(res, wasm_f64x2_const(0.0, 0.0)), wasm_f64x2_gt(c, wasm_f64x2_const(0.0, 0.0)))
+	);
+
+	v128_t is_zero = wasm_f64x2_eq(c, wasm_f64x2_const(0.0, 0.0));
+
+	v128_t k = wasm_i64x2_sub(c, wasm_i64x2_const(1, 1));
+
+	k = wasm_v128_bitselect(wasm_f64x2_const(0.0, 0.0), k, is_zero); // is_zero ? 0 : k
+
+	// to_round ? k : c
+	v128_t d = wasm_v128_bitselect(k, c, to_round);
+
+	return d;
+}
+
 double fadd_3(double a, double b) {
+	v128_t a_ssse = wasm_f64x2_splat(a);
+	v128_t b_ssse = wasm_f64x2_splat(b);
+	v128_t result = fadd_3_ssse(a_ssse, b_ssse);
+	double c = wasm_f64x2_extract_lane(result, 0);
+	return c;
+}
+
+// toward zero
+/* double fadd_3(double a, double b) {
 	double c = a + b;
 	double res = sum_residue(a, b, c);
 
@@ -134,7 +184,7 @@ double fadd_3(double a, double b) {
 	}
 
 	return c;
-}
+} */
 
 // ties to even
 double fsub_0(double a, double b) {

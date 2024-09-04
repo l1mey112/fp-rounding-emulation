@@ -158,8 +158,8 @@ void bench(driver_t *driver, unsigned samples) {
 		} else if (bound_idx < bound_size * 3 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - bound_size * 2])) {
 			a = bound[bound_idx - bound_size * 2];
 			b = bound[bound_idx - bound_size * 2];
-		} else if (bound_idx < bound_size * 4) {
-			b = -a;
+		} else if (bound_idx < 128) {
+			b = -a - pcgd_random_some(driver->lo, driver->hi, &state);
 		}
 		bound_idx++;
 
