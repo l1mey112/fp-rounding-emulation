@@ -110,7 +110,7 @@ static volatile uint32_t rdtsc_overhead() {
 
 void bench(driver_t *driver, unsigned samples) {
 	pcg32_random_t state = {
-		// .state = time(NULL),
+		.state = time(NULL),
 	};
 
 	const int fprc_env[] = {
