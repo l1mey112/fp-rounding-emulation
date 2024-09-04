@@ -14,8 +14,7 @@ struct driver_t {
 	const char *desc;
 	double lo;
 	double hi;
-	double (*fprc[4])(
-		double, double); // probably safe to call one arg function with two args
+	double (*fprc[4])(double, double); // probably safe to call one arg function with two args
 };
 
 // *Really* minimal PCG32 code / (c) 2014 M.E. O'Neill / pcg-random.org
@@ -159,6 +158,8 @@ void bench(driver_t *driver, unsigned samples) {
 		} else if (bound_idx < bound_size * 3 && pcgd_truth(driver->lo, driver->hi, bound[bound_idx - bound_size * 2])) {
 			a = bound[bound_idx - bound_size * 2];
 			b = bound[bound_idx - bound_size * 2];
+		} else if (bound_idx < bound_size * 4) {
+			b = -a;
 		}
 		bound_idx++;
 
