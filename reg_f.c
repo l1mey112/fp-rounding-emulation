@@ -31,7 +31,7 @@ double fadd_0(double a, double b) {
 #define SIMDE_ENABLE_NATIVE_ALIASES
 #include "simde/simde/wasm/simd128.h"
 
-static inline v128_t sum_residue_ssse(v128_t a, v128_t b, v128_t c) {
+static inline v128_t sum_residue_simd(v128_t a, v128_t b, v128_t c) {
 	v128_t delta_a = wasm_f64x2_sub(a, wasm_f64x2_sub(c, b));
 	v128_t delta_b = wasm_f64x2_sub(b, wasm_f64x2_sub(c, a));
 	v128_t res = wasm_f64x2_add(delta_a, delta_b);
@@ -40,7 +40,7 @@ static inline v128_t sum_residue_ssse(v128_t a, v128_t b, v128_t c) {
 
 v128_t fadd_1_ssse(v128_t a, v128_t b) {
 	v128_t c = wasm_f64x2_add(a, b);
-	v128_t res = sum_residue_ssse(a, b, c);
+	v128_t res = sum_residue_simd(a, b, c);
 
 	// round toward negative infinity
 	v128_t to_round = wasm_f64x2_lt(res, wasm_f64x2_const(0.0, 0.0));
@@ -104,7 +104,7 @@ double fadd_1(double a, double b) {
 
 v128_t fadd_2_ssse(v128_t a, v128_t b) {
 	v128_t c = wasm_f64x2_add(a, b);
-	v128_t res = sum_residue_ssse(a, b, c);
+	v128_t res = sum_residue_simd(a, b, c);
 
 	// round toward positive infinity
 	v128_t to_round = wasm_f64x2_gt(res, wasm_f64x2_const(0.0, 0.0));
@@ -143,7 +143,7 @@ double fadd_2(double a, double b) {
 
 v128_t fadd_3_ssse(v128_t a, v128_t b) {
 	v128_t c = wasm_f64x2_add(a, b);
-	v128_t res = sum_residue_ssse(a, b, c);
+	v128_t res = sum_residue_simd(a, b, c);
 
 	// round toward zero
 	// if (res > 0.0 && c < 0.0) || (res < 0.0 && c > 0.0)

@@ -79,8 +79,70 @@ double fmul_0(double a, double b) {
 	return a * b;
 }
 
-// toward negative infinity
+#define SIMDE_ENABLE_NATIVE_ALIASES
+#include "simde/simde/wasm/simd128.h"
+
+static inline v128_t upper_half_simd(v128_t x) {
+	v128_t secator = wasm_f64x2_const(134217729.0, 134217729.0);
+	v128_t p = wasm_f64x2_mul(x, secator);
+	return wasm_f64x2_add(p, wasm_f64x2_sub(x, p));
+}
+
+static inline v128_t emulated_fma_simd(v128_t a, v128_t b, v128_t c) {
+	v128_t aup = upper_half_simd(a);
+	v128_t alo = wasm_f64x2_sub(a, aup);
+	v128_t bup = upper_half_simd(b);
+	v128_t blo = wasm_f64x2_sub(b, bup);
+
+	v128_t high = wasm_f64x2_mul(aup, bup); 
+	v128_t mid = wasm_f64x2_add(wasm_f64x2_mul(aup, blo), wasm_f64x2_mul(alo, bup));
+	v128_t low = wasm_f64x2_mul(alo, blo);
+	v128_t ab = wasm_f64x2_add(high, mid);
+	v128_t resab = wasm_f64x2_add(wasm_f64x2_sub(high, ab), mid);
+	resab = wasm_f64x2_add(resab, low);
+
+	v128_t fma = wasm_f64x2_add(ab, c);
+	return wasm_f64x2_add(resab, fma);
+}
+
+static inline v128_t mul_residue_simd(v128_t a, v128_t b, v128_t c) {
+	return emulated_fma_simd(a, b, wasm_f64x2_neg(c));
+}
+
+#define unlikely(x) __builtin_expect(!!(x), 0)
+
+v128_t fmul_1_ssse(v128_t a, v128_t b) {
+	v128_t c = wasm_f64x2_mul(a, b);
+
+	// absolutely unlikely. 0.003414% of all cases
+	// check isinf (entire exponent set)
+	v128_t isinf_mask = wasm_i64x2_const(0x7ff0000000000000, 0x7ff0000000000000);
+	v128_t c_isinf = wasm_i64x2_ne(wasm_v128_and(c, isinf_mask), wasm_i64x2_const(0, 0));
+	if (unlikely(wasm_v128_any_true(c_isinf))) {
+		// fin * fin = _inf_; round down to the nearest representable number
+		// inf * inf = inf
+
+		// the sources of instructions, b, are always finite
+		
+		/* if (isfinite(a)) {
+			return nextafter_1_reg_e(c);
+		} */
+
+		// if (c_isinf) round down; res == 0.0
+		// if (!c_isinf) round down
+	}
+}
+
 double fmul_1(double a, double b) {
+	v128_t a_ssse = wasm_f64x2_splat(a);
+	v128_t b_ssse = wasm_f64x2_splat(b);
+	v128_t result = fmul_1_ssse(a_ssse, b_ssse);
+	double c = wasm_f64x2_extract_lane(result, 0);
+	return c;
+}
+
+// toward negative infinity
+/* double fmul_1(double a, double b) {
 	fmul_1_visit++;
 	double c = a * b;
 	if (!isfinite(c)) {
@@ -104,7 +166,7 @@ double fmul_1(double a, double b) {
 	}
 
 	return c;
-}
+} */
 
 // toward positive infinity
 double fmul_2(double a, double b) {
