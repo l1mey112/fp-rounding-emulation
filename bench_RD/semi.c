@@ -106,6 +106,7 @@ static inline v128_t ldexp_reg_e_nozero_noinf(v128_t x, v128_t n) {
 	return hx;
 }
 
+__attribute__((noinline))
 v128_t semi_fmul_1(v128_t dest, v128_t src) {
 	v128_t c = wasm_f64x2_mul(dest, src);
 
@@ -132,8 +133,8 @@ v128_t semi_fmul_1(v128_t dest, v128_t src) {
 	return nextafter_1_finite_nozero(res, c);
 }
 
-/* v128_t semi_fmul_fma_1(v128_t dest, v128_t src) {
+v128_t semi_fmul_fma_1(v128_t dest, v128_t src) {
 	v128_t c = wasm_f64x2_mul(dest, src);
 	v128_t res = mul_residue_fma(dest, src, c);
 	return nextafter_1_finite_nozero(res, c);
-} */
+}

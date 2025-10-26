@@ -1,0 +1,10 @@
+AMD Ryzen 7 3800X 8-Core Processor (clocked down to 2.2 GHz)
+
+  fprc(1):     0.72 ticks "hard_fadd_1"
+  fprc(1):     1.06 ticks "semi_fadd_1" (x1.46 overhead)
+  fprc(1):    10.50 ticks "soft_fadd_1" (x14.47 overhead)
+
+  fprc(1):     0.71 ticks "hard_fmul_1"
+  fprc(1):     2.05 ticks "semi_fmul_1" (x2.88 overhead)
+  fprc(1):     0.82 ticks "semi_fmul_fma_1" (x1.15 overhead)
+  fprc(1):     2.85 ticks "soft_fmul_1" (x4.00 overhead)

@@ -316,3 +316,153 @@ v128_t soft_fadd_1(v128_t dest, v128_t src) {
 
     return wasm_i64x2_make(res_0, res_1);
 }
+
+struct exp16_sig64 { int_fast16_t exp; uint_fast64_t sig; };
+
+#define SOFTFLOAT_FAST_INT64
+
+struct uint128 { uint64_t v0, v64; };
+struct uint64_extra { uint64_t extra, v; };
+struct uint128_extra { uint64_t extra; struct uint128 v; };
+typedef struct { uint64_t v[2]; } float128_t;
+
+#ifdef SOFTFLOAT_FAST_INT64
+union ui128_f128 { struct uint128 ui; float128_t f; };
+#endif
+
+static inline struct uint128 softfloat_mul64ByShifted32To128( uint64_t a, uint32_t b )
+{
+    union { unsigned __int128 ui; struct uint128 s; } uZ;
+    uZ.ui = (unsigned __int128) a * ((uint_fast64_t) b<<32);
+    return uZ.s;
+}
+#define softfloat_mul64ByShifted32To128 softfloat_mul64ByShifted32To128
+
+static inline struct uint128 softfloat_mul64To128( uint64_t a, uint64_t b )
+{
+    union { unsigned __int128 ui; struct uint128 s; } uZ;
+    uZ.ui = (unsigned __int128) a * b;
+    return uZ.s;
+}
+
+float64_t f64_mul( float64_t a, float64_t b )
+{
+    union ui64_f64 uA;
+    uint_fast64_t uiA;
+    bool signA;
+    int_fast16_t expA;
+    uint_fast64_t sigA;
+    union ui64_f64 uB;
+    uint_fast64_t uiB;
+    bool signB;
+    int_fast16_t expB;
+    uint_fast64_t sigB;
+    //bool signZ;
+    uint_fast64_t magBits;
+    struct exp16_sig64 normExpSig;
+    int_fast16_t expZ;
+#ifdef SOFTFLOAT_FAST_INT64
+    struct uint128 sig128Z;
+#else
+    uint32_t sig128Z[4];
+#endif
+    uint_fast64_t sigZ, uiZ;
+    union ui64_f64 uZ;
+
+    // no negatives, no zero
+
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    uA.f = a;
+    uiA = uA.ui;
+    signA = signF64UI( uiA );
+    expA  = expF64UI( uiA );
+    sigA  = fracF64UI( uiA );
+    uB.f = b;
+    uiB = uB.ui;
+    signB = signF64UI( uiB );
+    expB  = expF64UI( uiB );
+    sigB  = fracF64UI( uiB );
+
+    // always positive. signA == signB
+    //signZ = signA ^ signB;
+    // signZ == 0
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    if ( expA == 0x7FF ) {
+        // can never be NaN
+        //if ( sigA || ((expB == 0x7FF) && sigB) ) goto propagateNaN;
+        magBits = expB | sigB;
+        goto infArg;
+    }
+    // rhs can never be NaN or infinity
+    /* if ( expB == 0x7FF ) {
+        if ( sigB ) goto propagateNaN;
+        magBits = expA | sigA;
+        goto infArg;
+    } */
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+
+    // no subnormals
+    /* if ( ! expA ) {
+        // no zero
+        //if ( ! sigA ) goto zero;
+        normExpSig = softfloat_normSubnormalF64Sig( sigA );
+        expA = normExpSig.exp;
+        sigA = normExpSig.sig;
+    }
+    if ( ! expB ) {
+        // no zero
+        //if ( ! sigB ) goto zero;
+        normExpSig = softfloat_normSubnormalF64Sig( sigB );
+        expB = normExpSig.exp;
+        sigB = normExpSig.sig;
+    } */
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    expZ = expA + expB - 0x3FF;
+    sigA = (sigA | UINT64_C( 0x0010000000000000 ))<<10;
+    sigB = (sigB | UINT64_C( 0x0010000000000000 ))<<11;
+#ifdef SOFTFLOAT_FAST_INT64
+    sig128Z = softfloat_mul64To128( sigA, sigB );
+    sigZ = sig128Z.v64 | (sig128Z.v0 != 0);
+#else
+    softfloat_mul64To128M( sigA, sigB, sig128Z );
+    sigZ =
+        (uint64_t) sig128Z[indexWord( 4, 3 )]<<32 | sig128Z[indexWord( 4, 2 )];
+    if ( sig128Z[indexWord( 4, 1 )] || sig128Z[indexWord( 4, 0 )] ) sigZ |= 1;
+#endif
+    if ( sigZ < UINT64_C( 0x4000000000000000 ) ) {
+        --expZ;
+        sigZ <<= 1;
+    }
+    return softfloat_roundPackToF64( 0 /* signZ */, expZ, sigZ );
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+    /*------------------------------------------------------------------------
+    *------------------------------------------------------------------------*/
+ infArg:
+    // never NaN
+    if ( false /* ! magBits */ ) {
+        //uiZ = defaultNaNF64UI;
+    } else {
+        uiZ = packToF64UI( 0 /* signZ */, 0x7FF, 0 );
+    }
+    uZ.ui = uiZ;
+    return uZ.f;
+}
+
+__attribute__((noinline))
+v128_t soft_fmul_1(v128_t dest, v128_t src) {
+    uint64_t dest_0 = wasm_i64x2_extract_lane(dest, 0);
+    uint64_t src_0 = wasm_i64x2_extract_lane(src, 0);
+
+    uint64_t dest_1 = wasm_i64x2_extract_lane(dest, 1);
+    uint64_t src_1 = wasm_i64x2_extract_lane(src, 1);
+
+    uint64_t res_0 = f64_mul((float64_t){dest_0}, (float64_t){src_0}).v;
+    uint64_t res_1 = f64_mul((float64_t){dest_1}, (float64_t){src_1}).v;
+
+    return wasm_i64x2_make(res_0, res_1);
+}
