@@ -52,3 +52,14 @@ intel meteor lake
   fprc(1):     0.74 ticks "semi_fmul_1" (x2.10 overhead)
   fprc(1):     0.56 ticks "semi_fmul_fma_1" (x1.58 overhead)
   fprc(1):     0.87 ticks "soft_fmul_1" (x2.48 overhead)
+
+12th Gen Intel(R) Core(TM) i5-1240P
+
+  fprc(1):     0.33 ticks "hard_fadd_1"
+  fprc(1):     0.38 ticks "semi_fadd_1" (x1.13 overhead)
+  fprc(1):     3.13 ticks "soft_fadd_1" (x9.28 overhead)
+
+  fprc(1):     0.35 ticks "hard_fmul_1"
+  fprc(1):     0.64 ticks "semi_fmul_1" (x1.79 overhead)
+  fprc(1):     0.37 ticks "semi_fmul_fma_1" (x1.03 overhead)
+  fprc(1):     0.58 ticks "soft_fmul_1" (x1.62 overhead)
