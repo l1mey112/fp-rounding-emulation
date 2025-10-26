@@ -1,3 +1,9 @@
+**Update.** See `RD_bench` for something that actually works, measures correctly, and benchmarks hardware, software, and semi.
+
+Assume everything in here and the root folder is old and faulty, because it is.
+
+---
+
 # https://stackoverflow.com/questions/78776730/double-floating-point-operations-using-four-ieee-rounding-modes-implemented-in-t/78779343#comment138931233_78779343
 
 ```

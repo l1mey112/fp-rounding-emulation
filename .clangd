@@ -1,0 +1,16 @@
+InlayHints:
+  Designators: No
+  ParameterNames: No
+
+# --function-arg-placeholders=false
+#Completion:
+#  ArgumentLists: Delimiters
+
+If:
+  PathMatch: .*\.c
+
+CompileFlags:
+  Add:
+    - -Wall
+    - -Wextra
+    - -Wshadow
