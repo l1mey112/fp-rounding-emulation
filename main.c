@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <fenv.h>
 #include <math.h>
 #include <stdbool.h>
