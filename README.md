@@ -1,4 +1,4 @@
-**Update.** See `RD_bench` for something that actually works, measures correctly, and benchmarks hardware, software, and semi.
+**Update.** See `bench_RD` for something that actually works, measures correctly, and benchmarks hardware, software, and semi.
 
 Assume everything in here and the root folder is old and faulty, because it is.
 
