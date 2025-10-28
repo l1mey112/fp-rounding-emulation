@@ -219,7 +219,7 @@ v128_t hard_fmul_1(v128_t dest, v128_t src) {
 	return wasm_f64x2_mul(dest, src);
 }
 
-#define SAMPLES 3200000
+#define SAMPLES 32000000
 
 v128_pair_t sample_pairs[SAMPLES];
 
