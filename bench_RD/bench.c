@@ -219,9 +219,11 @@ v128_t hard_fmul_1(v128_t dest, v128_t src) {
 	return wasm_f64x2_mul(dest, src);
 }
 
-#define SAMPLES 320000
+#define SAMPLES 3200000
 
 v128_pair_t sample_pairs[SAMPLES];
+
+const int a = sizeof(sample_pairs);
 
 void bench_fill(double lo, double hi, bool is_F) {
 	pcg32_random_t state = {
