@@ -43,6 +43,14 @@ uint64_t end_timer(void)
    return ((uint64_t)a | ((uint64_t)d << 32));
 }
 
+int compare_double(const void *x, const void *y)
+{
+  double xx = *(double*)x, yy = *(double*)y;
+  if (xx < yy) return -1;
+  if (xx > yy) return  1;
+  return 0;
+}
+
 int compare_u64(const void *x, const void *y)
 {
   uint64_t xx = *(uint64_t*)x, yy = *(uint64_t*)y;
