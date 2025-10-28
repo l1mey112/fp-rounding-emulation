@@ -1,65 +1,75 @@
-AMD Ryzen 7 3800X 8-Core Processor (clocked down to 2.2 GHz)
+  fprc(1):    13.45 GFLOPS "hard_fadd_1"
+  fprc(1):     6.82 GFLOPS "semi_fadd_1" (x1.97 overhead)
+  fprc(1):     0.94 GFLOPS "soft_fadd_1" (x14.37 overhead)
 
-  fprc(1):     0.72 ticks "hard_fadd_1"
-  fprc(1):     1.06 ticks "semi_fadd_1" (x1.46 overhead)
-  fprc(1):    10.50 ticks "soft_fadd_1" (x14.47 overhead)
+  fprc(1):     8.28 GFLOPS "hard_fmul_1"
+  fprc(1):     1.96 GFLOPS "semi_fmul_1" (x4.23 overhead)
+  fprc(1):     7.24 GFLOPS "semi_fmul_fma_1" (x1.15 overhead)
+  fprc(1):     2.79 GFLOPS "soft_fmul_1" (x2.97 overhead)
+Model name:                              Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz
 
-  fprc(1):     0.71 ticks "hard_fmul_1"
-  fprc(1):     2.05 ticks "semi_fmul_1" (x2.88 overhead)
-  fprc(1):     0.82 ticks "semi_fmul_fma_1" (x1.15 overhead)
-  fprc(1):     2.85 ticks "soft_fmul_1" (x4.00 overhead)
+sched_setaffinity(CPU 3)
+  fprc(1):    19.44 GFLOPS "hard_fadd_1"
+  fprc(1):     9.33 GFLOPS "semi_fadd_1" (x2.08 overhead)
+  fprc(1):     1.10 GFLOPS "soft_fadd_1" (x17.68 overhead)
 
-Intel(R) Core(TM) i7-6600U CPU @ 2.60GHz
+  fprc(1):    19.44 GFLOPS "hard_fmul_1"
+  fprc(1):     4.03 GFLOPS "semi_fmul_1" (x4.82 overhead)
+  fprc(1):     9.57 GFLOPS "semi_fmul_fma_1" (x2.03 overhead)
+  fprc(1):     3.45 GFLOPS "soft_fmul_1" (x5.64 overhead)
+Model name:                              Intel(R) Core(TM) i5-7500T CPU @ 2.70GHz
 
-  fprc(1):     0.61 ticks "hard_fadd_1"
-  fprc(1):     0.64 ticks "semi_fadd_1" (x1.03 overhead)
-  fprc(1):     5.61 ticks "soft_fadd_1" (x9.13 overhead)
+sched_setaffinity(CPU 4)
+  fprc(1):    18.60 GFLOPS "hard_fadd_1"
+  fprc(1):    10.15 GFLOPS "semi_fadd_1" (x1.83 overhead)
+  fprc(1):     1.39 GFLOPS "soft_fadd_1" (x13.41 overhead)
 
-  fprc(1):     0.60 ticks "hard_fmul_1"
-  fprc(1):     1.27 ticks "semi_fmul_1" (x2.10 overhead)
-  fprc(1):     0.67 ticks "semi_fmul_fma_1" (x1.10 overhead)
-  fprc(1):     1.57 ticks "soft_fmul_1" (x2.59 overhead)
+  fprc(1):    20.48 GFLOPS "hard_fmul_1"
+  fprc(1):     4.81 GFLOPS "semi_fmul_1" (x4.26 overhead)
+  fprc(1):    10.84 GFLOPS "semi_fmul_fma_1" (x1.89 overhead)
+  fprc(1):     4.09 GFLOPS "soft_fmul_1" (x5.01 overhead)
+Model name:                           Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
 
-Intel(R) Core(TM) i5-10400F CPU @ 2.90GHz
+sched_setaffinity(CPU 0)
+  fprc(1):    21.19 GFLOPS "hard_fadd_1"
+  fprc(1):    11.67 GFLOPS "semi_fadd_1" (x1.82 overhead)
+  fprc(1):     1.38 GFLOPS "soft_fadd_1" (x15.37 overhead)
 
-  fprc(1):     0.49 ticks "hard_fadd_1"
-  fprc(1):     0.49 ticks "semi_fadd_1" (x1.00 overhead)
-  fprc(1):     4.17 ticks "soft_fadd_1" (x8.51 overhead)
+  fprc(1):    22.23 GFLOPS "hard_fmul_1"
+  fprc(1):     5.10 GFLOPS "semi_fmul_1" (x4.36 overhead)
+  fprc(1):    12.01 GFLOPS "semi_fmul_fma_1" (x1.85 overhead)
+  fprc(1):     4.40 GFLOPS "soft_fmul_1" (x5.05 overhead)
+Model name:                              Intel(R) Core(TM) i5-10400F CPU @ 2.90GHz
 
-  fprc(1):     0.45 ticks "hard_fmul_1"
-  fprc(1):     1.07 ticks "semi_fmul_1" (x2.36 overhead)
-  fprc(1):     0.45 ticks "semi_fmul_fma_1" (x1.01 overhead)
-  fprc(1):     1.28 ticks "soft_fmul_1" (x2.84 overhead)
+sched_setaffinity(CPU 0)
+  fprc(1):    50.55 GFLOPS "hard_fadd_1"
+  fprc(1):    31.66 GFLOPS "semi_fadd_1" (x1.60 overhead)
+  fprc(1):     1.60 GFLOPS "soft_fadd_1" (x31.62 overhead)
 
-Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+  fprc(1):    57.97 GFLOPS "hard_fmul_1"
+  fprc(1):    10.21 GFLOPS "semi_fmul_1" (x5.68 overhead)
+  fprc(1):    32.06 GFLOPS "semi_fmul_fma_1" (x1.81 overhead)
+  fprc(1):     8.68 GFLOPS "soft_fmul_1" (x6.68 overhead)
+Model name:                              Intel(R) Core(TM) i9-14900HX
 
-  fprc(1):     0.34 ticks "hard_fadd_1"
-  fprc(1):     0.35 ticks "semi_fadd_1" (x1.02 overhead)
-  fprc(1):     3.00 ticks "soft_fadd_1" (x8.73 overhead)
+sched_setaffinity(CPU 10)
+  fprc(1):    28.29 GFLOPS "hard_fadd_1"
+  fprc(1):    18.48 GFLOPS "semi_fadd_1" (x1.53 overhead)
+  fprc(1):     1.46 GFLOPS "soft_fadd_1" (x19.38 overhead)
 
-  fprc(1):     0.33 ticks "hard_fmul_1"
-  fprc(1):     0.70 ticks "semi_fmul_1" (x2.07 overhead)
-  fprc(1):     0.35 ticks "semi_fmul_fma_1" (x1.02 overhead)
-  fprc(1):     0.89 ticks "soft_fmul_1" (x2.62 overhead)
+  fprc(1):    28.36 GFLOPS "hard_fmul_1"
+  fprc(1):     8.17 GFLOPS "semi_fmul_1" (x3.47 overhead)
+  fprc(1):    18.54 GFLOPS "semi_fmul_fma_1" (x1.53 overhead)
+  fprc(1):     6.54 GFLOPS "soft_fmul_1" (x4.34 overhead)
+Model name:                              12th Gen Intel(R) Core(TM) i5-12400F
 
-intel meteor lake
+sched_setaffinity(CPU 2)
+  fprc(1):    14.33 GFLOPS "hard_fadd_1"
+  fprc(1):     7.57 GFLOPS "semi_fadd_1" (x1.89 overhead)
+  fprc(1):     1.24 GFLOPS "soft_fadd_1" (x11.59 overhead)
 
-  fprc(1):     0.55 ticks "hard_fadd_1"
-  fprc(1):     0.55 ticks "semi_fadd_1" (x1.00 overhead)
-  fprc(1):     4.08 ticks "soft_fadd_1" (x7.33 overhead)
-
-  fprc(1):     0.35 ticks "hard_fmul_1"
-  fprc(1):     0.74 ticks "semi_fmul_1" (x2.10 overhead)
-  fprc(1):     0.56 ticks "semi_fmul_fma_1" (x1.58 overhead)
-  fprc(1):     0.87 ticks "soft_fmul_1" (x2.48 overhead)
-
-12th Gen Intel(R) Core(TM) i5-1240P
-
-  fprc(1):     0.33 ticks "hard_fadd_1"
-  fprc(1):     0.38 ticks "semi_fadd_1" (x1.13 overhead)
-  fprc(1):     3.13 ticks "soft_fadd_1" (x9.28 overhead)
-
-  fprc(1):     0.35 ticks "hard_fmul_1"
-  fprc(1):     0.64 ticks "semi_fmul_1" (x1.79 overhead)
-  fprc(1):     0.37 ticks "semi_fmul_fma_1" (x1.03 overhead)
-  fprc(1):     0.58 ticks "soft_fmul_1" (x1.62 overhead)
+  fprc(1):    13.80 GFLOPS "hard_fmul_1"
+  fprc(1):     4.30 GFLOPS "semi_fmul_1" (x3.21 overhead)
+  fprc(1):     7.73 GFLOPS "semi_fmul_fma_1" (x1.79 overhead)
+  fprc(1):     3.07 GFLOPS "soft_fmul_1" (x4.49 overhead)
+Model name:                              Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
